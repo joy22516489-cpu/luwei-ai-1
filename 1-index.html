@@ -1,0 +1,144 @@
+ <input type="file" accept="image/*" id="imageUpload">
+
+  <br><br>
+
+  <img id="preview" width="250">
+
+  <h3 id="result">辨識結果：尚未辨識</h3>
+
+  <h3 id="price">價格：0 元</h3>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+  <script>
+
+     <input type="file" accept="image/*" id="imageUpload">
+
+  <br><br>
+
+  <img id="preview" width="250">
+
+  <h3 id="result">辨識結果：尚未辨識</h3>
+
+  <h3 id="price">價格：0 元</h3>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+ <script>
+
+const URL = "https://teachablemachine.withgoogle.com/models/LwQELslfC/";
+
+let model;
+
+async function init() {
+
+  model = await tmImage.load(
+    URL + "model.json",
+    URL + "metadata.json"
+  );
+
+  console.log("模型載入成功");
+}
+
+function getPrice(name) {
+
+  if (name === "杏鮑菇") return 30;
+
+  if (name === "豬肉") return 40;
+
+  if (name === "米血") return 25;
+
+  if (name === "高麗菜") return 30;
+
+  if (name === "豆干") return 10;
+
+  if (name === "一顆貢丸") return 10;
+
+  if (name === "兩顆貢丸") return 20;
+
+  if (name === "三顆貢丸") return 30;
+
+  if (name === "培根") return 35;
+
+  if (name === "海帶") return 30;
+
+  if (name === "百頁豆腐") return 25;
+
+  return 0;
+}
+
+document.getElementById("imageUpload").addEventListener("change", async function(event) {
+
+  const file = event.target.files[0];
+
+  const img = document.getElementById("preview");
+
+  img.src = window.URL.createObjectURL(file);
+
+  img.onload = async function() {
+
+    const prediction = await model.predict(img);
+
+    prediction.sort((a, b) => b.probability - a.probability);
+
+    const item = prediction[0].className;
+
+    const percent = (prediction[0].probability * 100).toFixed(1);
+
+    let totalPrice = 0;
+
+    let detailText = "";
+
+    prediction.forEach(p => {
+
+      const name = p.className;
+
+      const probability = p.probability;
+
+      const price = getPrice(name);
+
+      const quantity = Math.round(probability * 3);
+
+      const subtotal = quantity * price;
+
+      totalPrice += subtotal;
+
+      detailText +=
+        name +
+        "：" +
+        quantity +
+        "份 × " +
+        price +
+        "元 = " +
+        subtotal +
+        "元\n";
+    });
+
+    document.getElementById("result").innerText =
+      "辨識結果：" + item + "（" + percent + "%）";
+
+    document.getElementById("price").innerText =
+      "總金額：" + totalPrice + " 元";
+
+    console.log(detailText);
+  };
+
+});
+
+init();
+
+</script>
+
+</body>
+
+</html>
+
+  </script>
+
+</body>
+
+</html>
